@@ -1,11 +1,43 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const Contact = require('../models/contact');
 
 const contactRouter = express.Router();
 
-contactRouter.get('/', function(req, res, next) {
-    res.statusCode = 200;
-    res.render('index', { title: 'Express' });
+contactRouter.use(bodyParser.json());
+
+contactRouter.route('/')
+.get((req, res, next) => {
+    Contact.find()
+    .then( messages => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(messages);
+        })
+    .catch(err => next(err));
+})
+.post((req, res, next) => {
+    Contact.create(req.body)
+    .then(message => {
+        console.log(`Message created: ${message}`)
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(message);
+    })
+    .catch(err => next(err));
+})
+.put((req, res) => {
+    res.statusCode = 403;
+    res.send('PUT operation not supported on /contactmessages');
+})
+.delete((req, res, next) => {
+    Contact.deleteMany()
+    .then(response => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    })
+    .catch(err => next(err));
 });
   
 module.exports = contactRouter;
