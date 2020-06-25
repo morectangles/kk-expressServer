@@ -21,7 +21,7 @@ contactRouter.route('/')
 .post(cors.cors, (req, res, next) => {
     Contact.create(req.body)
     .then(message => {
-        console.log(`Message created: ${message}`)
+        console.log(`Message created: ${message}`);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json(message);
