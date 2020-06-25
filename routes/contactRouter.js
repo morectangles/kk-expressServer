@@ -1,13 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Contact = require('../models/contact');
+const cors = require('./cors');
+const authenticate = require('../authenticate');
 
 const contactRouter = express.Router();
 
 contactRouter.use(bodyParser.json());
 
 contactRouter.route('/')
-.get((req, res, next) => {
+.get(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Contact.find()
     .then( messages => {
         res.statusCode = 200;
@@ -16,7 +18,7 @@ contactRouter.route('/')
         })
     .catch(err => next(err));
 })
-.post((req, res, next) => {
+.post(cors.cors, (req, res, next) => {
     Contact.create(req.body)
     .then(message => {
         console.log(`Message created: ${message}`)
@@ -28,9 +30,9 @@ contactRouter.route('/')
 })
 .put((req, res) => {
     res.statusCode = 403;
-    res.send('PUT operation not supported on /contactmessages');
+    res.send('PUT operation not supported on /contact');
 })
-.delete((req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => {
     Contact.deleteMany()
     .then(response => {
         res.statusCode = 200;
